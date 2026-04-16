@@ -14,3 +14,6 @@ export enum privateRoutesEnum {
   CHAT_ROUTE = "/api/private/chats/chat",
 }
 
+export type { IChat, ChatList, IMessage, MessageList } from './chat';
+
+

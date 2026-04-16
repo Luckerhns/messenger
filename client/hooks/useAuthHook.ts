@@ -1,20 +1,24 @@
 "use client";
 
-import { useState } from 'react';
-import { phoneMask } from '../utils/auth';
+import { useState } from "react";
+import { phoneMask } from "@/utils/auth";
+import { authLogin, authRegister } from "@/http/userHttp";
+import { useRouter } from "next/navigation";
+import { privateRoutesEnum } from "@/types/routes";
 
 export const useAuthHook = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    phone: '',
-    password: '',
+    phone: "",
+    password: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (name === 'phone') {
+    if (name === "phone") {
       const maskedValue = phoneMask(value);
       setFormData({ ...formData, [name]: maskedValue });
     } else {
@@ -22,33 +26,21 @@ export const useAuthHook = () => {
     }
   };
 
-  const submitAuth = async (endpoint: string, onSuccess: () => void) => {
+  const submitAuth = async (event: React.FormEvent, isRegister: boolean) => {
+    event.preventDefault();
     setLoading(true);
-    setError('');
-
+    setError("");
     try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          phone: formData.phone.replace(/\D/g, ''), 
-          password: formData.password 
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Auth failed');
-      }
-
-      localStorage.setItem('token', data.token);
+      const data = await authLogin(formData);
       setShowSuccess(true);
+      setLoading(true)
       setTimeout(() => {
-        onSuccess();
+        // or window.location.href = '/private/chats';
+        setLoading(false)
+        router.push(privateRoutesEnum.CHATS_ROUTE);
       }, 1500);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Auth failed');
+    } catch (err: any) {
+      setError(err.response?.data?.message || err.message || "Auth failed");
     } finally {
       setLoading(false);
     }

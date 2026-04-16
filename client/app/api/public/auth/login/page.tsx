@@ -1,28 +1,18 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, Lock, ArrowRight, MessageCircle } from 'lucide-react';
-import Link from 'next/link';
-import { privateRoutesEnum, publicRoutesEnum } from 'types/routes';
-import { useAuthHook } from "hooks/useAuthHook"
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Phone, Lock, ArrowRight, MessageCircle } from "lucide-react";
+import Link from "next/link";
+import { privateRoutesEnum, publicRoutesEnum } from "@/types/routes";
+import { useAuthHook } from "@/hooks/useAuthHook";
+import { login } from "@/http/userHttp";
 
 export default function LoginPage() {
-  const {
-    formData,
-    handleChange,
-    submitAuth,
-    error,
-    loading,
-    showSuccess,
-  } = useAuthHook();
+  const { formData, handleChange, submitAuth, error, loading, showSuccess } =
+    useAuthHook();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    submitAuth('/api/public/auth/login', () => {
-      window.location.href = privateRoutesEnum.CHATS_ROUTE;
-    });
-  };
+
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -30,30 +20,30 @@ export default function LoginPage() {
       opacity: 1,
       transition: {
         staggerChildren: 0.2,
-        delayChildren: 0.2
-      }
-    }
+        delayChildren: 0.2,
+      },
+    },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 30, scale: 0.95 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
+    visible: {
+      opacity: 1,
+      y: 0,
       scale: 1,
-      transition: { duration: 0.6, ease: 'easeOut' }
-    }
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
   };
 
   const buttonVariants = {
     hover: { scale: 1.05, transition: { duration: 0.2 } },
-    tap: { scale: 0.98 }
+    tap: { scale: 0.98 },
   };
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 px-4 py-12 dark:from-zinc-900/50 dark:via-slate-900/50 dark:to-zinc-900/50 relative overflow-hidden">
       {/* Animated background elements */}
-      <motion.div 
+      <motion.div
         className="absolute inset-0"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -63,7 +53,7 @@ export default function LoginPage() {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-indigo-300/20 to-blue-300/20 rounded-full blur-3xl float" />
       </motion.div>
 
-      <motion.div 
+      <motion.div
         className="w-full max-w-md relative z-10"
         variants={containerVariants}
         initial="hidden"
@@ -71,14 +61,14 @@ export default function LoginPage() {
       >
         {/* Header */}
         <motion.div className="text-center mb-12" variants={itemVariants}>
-          <motion.div 
+          <motion.div
             className="mx-auto w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl glow-focus mb-6 float"
             whileHover={{ scale: 1.1, rotate: [0, 5, -5, 0] }}
             transition={{ duration: 0.5 }}
           >
             <MessageCircle className="w-12 h-12 text-white drop-shadow-lg wave" />
           </motion.div>
-          <motion.h1 
+          <motion.h1
             className="text-5xl md:text-6xl font-black bg-gradient-to-r from-zinc-900 via-indigo-900 to-purple-900 bg-clip-text text-transparent dark:from-zinc-100 dark:via-blue-300 dark:to-purple-300 mb-4 drop-shadow-lg"
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
@@ -86,7 +76,7 @@ export default function LoginPage() {
           >
             Добро пожаловать
           </motion.h1>
-          <motion.p 
+          <motion.p
             className="text-xl text-zinc-600 dark:text-zinc-400 font-medium"
             variants={itemVariants}
           >
@@ -94,16 +84,16 @@ export default function LoginPage() {
           </motion.p>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="glass-card p-10 rounded-3xl shadow-2xl"
           variants={itemVariants}
           whileHover="hover"
         >
           <AnimatePresence>
             {error && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
+                animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 className="p-5 bg-gradient-to-r from-red-500/10 to-rose-500/10 border border-red-400/30 backdrop-blur-sm text-red-800 dark:text-red-200 rounded-2xl text-sm mb-6 overflow-hidden"
               >
@@ -112,7 +102,7 @@ export default function LoginPage() {
             )}
           </AnimatePresence>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={e => submitAuth(e, false)} className="space-y-8">
             {/* Phone */}
             <motion.div variants={itemVariants}>
               <label className="block text-lg font-semibold text-zinc-800 dark:text-zinc-200 mb-4">
@@ -176,7 +166,11 @@ export default function LoginPage() {
                     key="loading"
                     initial={{ rotate: 0 }}
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
                     className="flex items-center gap-2"
                   >
                     Вход...
@@ -192,16 +186,16 @@ export default function LoginPage() {
             </motion.button>
           </form>
 
-          <motion.p 
+          <motion.p
             className="text-center mt-10 text-lg text-zinc-600 dark:text-zinc-400 font-medium"
             variants={itemVariants}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
           >
-            Нет аккаунта?{' '}
-            <Link 
-              href={publicRoutesEnum.REGISTER_ROUTE} 
+            Нет аккаунта?{" "}
+            <Link
+              href={publicRoutesEnum.REGISTER_ROUTE}
               className="font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 hover:underline"
             >
               Создать аккаунт →

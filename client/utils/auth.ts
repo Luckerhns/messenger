@@ -1,3 +1,33 @@
+import { privateRoutesEnum } from '../types/routes';
+
+// Add auth util
+export const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  if (!token) {
+    throw new Error('No auth token');
+  }
+
+  const res = await fetch(endpoint, {
+    ...options,
+    headers: {
+      ...options.headers,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login'; // Or router.push
+    }
+    const data = await res.json();
+    throw new Error(data.message || 'Request failed');
+  }
+
+  return res.json();
+};
+
 export const phoneMask = (value: string): string => {
   const cleaned = value.replace(/\D/g, '');
   let formatted = '';
