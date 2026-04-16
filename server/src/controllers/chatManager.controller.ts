@@ -7,15 +7,27 @@ export default class ChatManagerController {
     try {
       const { link } = req.params;
       const { userId } = req.body;
-      console.log('Controller addUser:', link, userId);
-      
-      const updatedChat = await ChatManagerService.addUserToChat(link, Number(userId));
+      console.log("Controller addUser:", link, userId);
+
+      const updatedChat = await ChatManagerService.addUserToChat(
+        link,
+        Number(userId),
+      );
       res.json(updatedChat);
     } catch (error) {
       next(error);
     }
   }
 
-  public static async deleteUserFromChat(req: Request, res: Response, next: NextFunction) {}
-}
+  public static async deleteUserFromChat(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {}
 
+  public static async getUserChats(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {}
+}
