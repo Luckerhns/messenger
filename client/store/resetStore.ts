@@ -1,5 +1,6 @@
 import { useAuthStore } from './authStore';
 import { useChatsStore } from './chatsStore';
+import { useInputStore } from './inputStore';
 import { useMessagesStore } from './messagesStore';
 import { useUIStore } from './uiStore';
 
@@ -14,6 +15,7 @@ export const resetAllStores = () => {
     isModalOpen: false,
     modalType: null,
   });
+  useInputStore.getState().clearInputValue();
 };
 
 // Re-export for convenience

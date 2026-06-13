@@ -12,11 +12,12 @@ import { useAuthStore } from "@/store/authStore";
 import { useChatsStore } from "@/store/chatsStore";
 import { useSelectChat } from "@/hooks/useSelectChat";
 import AutoResizeTextarea from "../UI/AutoResizeTextarea";
+import { useInputStore } from "@/store/inputStore";
+import { sendSocketMessage } from "@/lib/socket";
 
 interface ChatWindowProps {
   chat: IChat | null;
 }
-
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ chat }) => {
   const [input, setInput] = useState("");
@@ -27,19 +28,17 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ chat }) => {
   const sending = chat ? isSending[chat.uniqueLink] || false : false;
   const { user } = useAuthStore();
   const { selectedChat } = useSelectChat();
-  const sendMessage = () => {
-    // console.log("GG")
-    // send({
-    //   senderId: user?.id,
-    //   content: input,
-    //   type: 'string',
-    //   chatId: selectedChat.id
-    // })
-    // setInput("")
-    // console.log(input)
-  };
+  const { inputValue, setInputValue } = useInputStore();
 
-  // const socket = socketClient();
+  // Send message to websocket server
+  const sendMessage = async () => {
+    try {
+      const newMessage = await sendSocketMessage(inputValue, chat.id, user.id);
+      console.log(newMessage)
+    } catch (error) {
+      console.log("Error sending message:", error);
+    }
+  };
 
   if (!chat) {
     return (
@@ -134,14 +133,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ chat }) => {
             <Paperclip className="w-5 h-5" />
           </button>
           <AutoResizeTextarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
             placeholder="Type a message..."
           />
 
           <button
             onClick={sendMessage}
-            disabled={sending || !input.trim()}
             className="p-3 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:hover:bg-blue-500 rounded-full transition-colors flex items-center justify-center w-10 h-10"
           >
             {sending ? (

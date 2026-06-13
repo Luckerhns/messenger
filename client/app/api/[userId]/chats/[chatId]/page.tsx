@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import ChatList from "@/components/chats/ChatList";
 import SearchBar from "@/components/chats/SearchBar";
 import CreateChatModal from "@/components/chats/CreateChatModal";
@@ -10,20 +10,24 @@ import { useChats } from "@/hooks/useChats";
 import { useChatsStore } from "@/store/chatsStore";
 import { useSelectChat } from "@/hooks/useSelectChat";
 import { useParams, useSearchParams } from "next/navigation";
+import useSocketHook from "@/hooks/useSocketHook";
+import { initSocket } from "@/lib/socket";
 
 const ChatsPage = () => {
   const [searchQuery, setSearchQuery] = React.useState("");
   const { selectedChat, selectChat } = useSelectChat();
   const { chats } = useChats();
   const searchParams = useParams();
-  
-  
+
+  useEffect(() => {
+    initSocket(); // to be implemented
+  }, []);
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
 
-  const {userId, chatId} = searchParams;
-
+  const { userId, chatId } = searchParams;
 
   console.log(searchParams);
 

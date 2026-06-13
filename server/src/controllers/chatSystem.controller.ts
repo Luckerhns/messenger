@@ -25,12 +25,10 @@ export default class ChatSystemController {
     next: NextFunction,
   ) {
     try {
-      console.log(req.query)
       const userId = req.query.userId;
       if (!userId) throw new AppError("UserId parameter missing", 400);
 
       const userChats = await ChatSystemService.openChatsByUserId(userId);
-      console.log(userChats);
       return res.status(200).json(userChats);
     } catch (error) {
       next(error);

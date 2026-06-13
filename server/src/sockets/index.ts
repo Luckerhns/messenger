@@ -15,7 +15,7 @@ export const setupSockets = (wss: WebSocketServer) => {
     console.log("Клиент подключился");
     ws.on("message", (e) => {
       try {
-        console.log(e.toString("utf8"));
+        console.log("Socket info", e.toString("utf8"));
 
         // const readeble = JSON.parse(e.toString("utf-8"))
         // console.log(readeble, 'readable')
