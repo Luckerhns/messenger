@@ -11,12 +11,11 @@ import { useChatsStore } from "@/store/chatsStore";
 import { useSelectChat } from "@/hooks/useSelectChat";
 import { useRouter } from "next/navigation";
 
-
-const ChatsPage = ({params}) => {
+const ChatsPage = ({ params }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const { selectedChat, selectChat } = useSelectChat();
   const { chats, refetch } = useChats();
-  const router = useRouter()
+  const router = useRouter();
   // console.log(chat, "CHAT")
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -33,6 +32,7 @@ const ChatsPage = ({params}) => {
         {/* <SearchBar onSearch={handleSearch} onNewChat={handleNewChat} /> */}
         <ChatList onChatSelect={handleChatSelect} />
         <NewChatButton />
+        <CreateChatModal />
       </div>
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col">

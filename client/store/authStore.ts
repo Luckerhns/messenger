@@ -4,8 +4,8 @@ import type { AuthState } from "./types";
 import { authLogin, authRegister } from "@/http/userHttp";
 
 interface AuthActions {
-  login: (data) => Promise<void>;
-  register: (data) => Promise<void>;
+  login: (data: { phone: string; password: string }) => Promise<void>;
+  register: (data: { phone: string; password: string }) => Promise<void>;
   logout: () => void;
 }
 
@@ -23,8 +23,11 @@ const initialState: AuthState = {
 export const useAuthStore = withPersists<AuthStore>(
   (set, get) => ({
     ...initialState,
+    errorState: async (data) => {
+      set({ error: data });
+    },
     login: async (data) => {
-      set({ isLoading: true });
+      set({ isLoading: true, error: null });
       try {
         const { user, token, chats } = await authLogin(data);
         set({
@@ -35,14 +38,14 @@ export const useAuthStore = withPersists<AuthStore>(
           isLoading: false,
           error: null,
         });
-      } catch (error) {
-        console.log(error, "Error in authorization");
-        set({ error: "Ошибка при входе", isLoading: false });
-        throw error;
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Ошибка авторизации";
+        set({ error: message, isLoading: false, isAuthenticated: false });
+        throw err;
       }
     },
     register: async (data) => {
-      set({ isLoading: true });
+      set({ isLoading: true, error: null });
       try {
         const { user, token, chats } = await authRegister(data);
         set({
@@ -53,15 +56,16 @@ export const useAuthStore = withPersists<AuthStore>(
           isLoading: false,
           error: null,
         });
-      } catch (error) {
-        console.log(error, "Error in authorization");
-        set({ error: "Register failed", isLoading: false });
-        throw error;
+      } catch (err: any) {
+        const message = err?.message || "Ошибка регистрации";
+        set({ error: message, isLoading: false, isAuthenticated: false });
+        throw err;
       }
     },
     logout: () => {
       set(initialState);
     },
   }),
-  "auth-storage"
+  "auth-storage",
 );
+

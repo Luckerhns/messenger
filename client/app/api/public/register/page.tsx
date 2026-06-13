@@ -1,53 +1,30 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, Lock, ArrowRight, MessageCircle } from "lucide-react";
+import { Phone, Lock, ArrowRight, MessageCircle, User } from "lucide-react";
 import Link from "next/link";
-import { useAuthStore } from "@/store/authStore";
-import { phoneMask } from "@/utils/auth";
-import { privateRoutesEnum, publicRoutesEnum } from "@/types/routes";
-import { useRouter } from "next/navigation";
+import { publicRoutesEnum } from "@/types/routes";
+import { useAuthHook } from "@/hooks/useAuthHook";
 
-export default function LoginPage() {
-  const router = useRouter();
-  const { isLoading, error, user, register } = useAuthStore();
-  
-  const [formData, setFormData] = useState({
-    phone: "",
-    password: "",
-  });
-  const [showSuccess, setShowSuccess] = useState(false);
 
-  // Auto-redirect after successful login
-  useEffect(() => {
-    if (user && !isLoading) {
-      const userId = user.id;
-      const timer = setTimeout(() => {
-        router.push(`/api/${userId}/chats`);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [user, isLoading, router]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    if (name === "phone") {
-      const maskedValue = phoneMask(value);
-      setFormData({ ...formData, [name]: maskedValue });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
-  };
+export default function RegisterPage() {
+  const { formData, handleChange, submitAuth, error, loading, showSuccess, user, setShowSuccess } = useAuthHook();
 
-  const submitAuth = async (e: React.FormEvent) => {
+
+  // we keep local success animation, but input/submit logic comes from useAuthHook
+  // useAuthHook already handles phoneMask and server error propagation
+
+
+  const submitAuthWithSuccess = async (e: React.FormEvent) => {
     e.preventDefault();
     setShowSuccess(false);
     try {
-      await register(formData);
+      await submitAuth(e, true);
       setShowSuccess(true);
-    } catch (err) {
-      console.error("Login failed", err);
+    } catch {
+      // error is handled inside useAuthHook and also exposed via `error`
     }
   };
 
@@ -111,13 +88,13 @@ export default function LoginPage() {
             animate={{ scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Добро пожаловать
+            Регистрация
           </motion.h1>
           <motion.p
             className="text-xl text-zinc-600 dark:text-zinc-400 font-medium"
             variants={itemVariants}
           >
-            Войдите в свой аккаунт
+            Создайте аккаунт
           </motion.p>
         </motion.div>
 
@@ -139,7 +116,8 @@ export default function LoginPage() {
             )}
           </AnimatePresence>
 
-          <form onSubmit={submitAuth} className="space-y-8">
+          <form onSubmit={submitAuthWithSuccess} className="space-y-8">
+
             {/* Phone */}
             <motion.div variants={itemVariants}>
               <label className="block text-lg font-semibold text-zinc-800 dark:text-zinc-200 mb-4">
@@ -153,7 +131,7 @@ export default function LoginPage() {
                   required
                   value={formData.phone}
                   onChange={handleChange}
-                  disabled={isLoading || user}
+                  disabled={loading || user}
                   className="w-full pl-16 pr-6 py-5 bg-white/60 dark:bg-zinc-800/70 backdrop-blur-lg border-2 border-zinc-200/50 dark:border-zinc-700/50 rounded-3xl text-xl font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 focus:outline-none transition-all duration-500 hover:border-indigo-400 shadow-lg hover:shadow-xl disabled:opacity-60"
                   placeholder="+7 (999) 999-99-99"
                 />
@@ -163,7 +141,7 @@ export default function LoginPage() {
             {/* Password */}
             <motion.div variants={itemVariants}>
               <label className="block text-lg font-semibold text-zinc-800 dark:text-zinc-200 mb-4">
-                🔒 Пароль
+                🔒 Придумайте пароль
               </label>
               <div className="relative">
                 <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-purple-500 w-6 h-6 glow-focus" />
@@ -173,7 +151,7 @@ export default function LoginPage() {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  disabled={isLoading || user}
+                  disabled={loading || user}
                   className="w-full pl-16 pr-6 py-5 bg-white/60 dark:bg-zinc-800/70 backdrop-blur-lg border-2 border-zinc-200/50 dark:border-zinc-700/50 rounded-3xl text-xl font-medium focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 focus:outline-none transition-all duration-500 hover:border-purple-400 shadow-lg hover:shadow-xl disabled:opacity-60"
                   placeholder="Введите ваш пароль"
                 />
@@ -182,23 +160,24 @@ export default function LoginPage() {
 
             <motion.button
               type="submit"
-              disabled={isLoading || user}
+              disabled={loading || user}
               variants={buttonVariants}
               whileHover="hover"
               whileTap="tap"
               className="group relative w-full flex items-center justify-center gap-3 py-6 px-8 bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 hover:from-indigo-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold text-xl rounded-3xl shadow-2xl hover:shadow-3xl glow-focus overflow-hidden transition-all duration-500 transform hover:-translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <AnimatePresence mode="wait">
-                {user ? (
+                {user || showSuccess ? (
                   <motion.div
                     key="success"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1, rotate: 360 }}
                     className="flex items-center gap-2"
                   >
-                    ✅ Перенаправление...
+                    ✅ Аккаунт создан
+                    <ArrowRight className="w-6 h-6" />
                   </motion.div>
-                ) : isLoading ? (
+                ) : loading ? (
                   <motion.div
                     key="loading"
                     initial={{ rotate: 0 }}
@@ -210,12 +189,12 @@ export default function LoginPage() {
                     }}
                     className="flex items-center gap-2"
                   >
-                    Вход...
+                    Регистрация...
                     <ArrowRight className="w-6 h-6 shimmer" />
                   </motion.div>
                 ) : (
                   <motion.div key="normal" className="flex items-center gap-2">
-                    Войти в аккаунт
+                    Создать аккаунт
                     <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform duration-300" />
                   </motion.div>
                 )}
@@ -230,12 +209,12 @@ export default function LoginPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
           >
-            Нет аккаунта?{" "}
+            Уже есть аккаунт?{" "}
             <Link
-              href={publicRoutesEnum.REGISTER_ROUTE}
+              href={publicRoutesEnum.LOGIN_ROUTE}
               className="font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 hover:underline"
             >
-              Создать аккаунт →
+              Войти →
             </Link>
           </motion.p>
         </motion.div>
@@ -243,3 +222,4 @@ export default function LoginPage() {
     </main>
   );
 }
+

@@ -1,0 +1,9 @@
+/client/node_modules
+/server/node_modules
+/mobile
+
+/client/.env
+/server/.env
+
+/client/.next
+/server/dist

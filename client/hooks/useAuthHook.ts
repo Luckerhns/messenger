@@ -9,7 +9,9 @@ import { privateRoutesEnum } from "@/types/routes";
 
 export const useAuthHook = () => {
   const router = useRouter();
-  const { login } = useAuthStore();
+  // Zustand store provides current user for redirects (read-only from this hook)
+  const user = useAuthStore((s) => s.user);
+
   
   const [formData, setFormData] = useState({
     phone: "",
@@ -33,21 +35,29 @@ export const useAuthHook = () => {
     event.preventDefault();
     setLoading(true);
     setError("");
-    
+
     try {
-      await login(formData);
+      if (isRegister) {
+        await useAuthStore.getState().register(formData);
+      } else {
+        await useAuthStore.getState().login(formData);
+      }
+
       setShowSuccess(true);
-      
+
+      // Если роутим на основе Zustand, возможна рассинхронизация обновления.
+      // Поэтому после успешной авторизации/регистрации просто делаем небольшую задержку и проверяем user ещё раз.
       setTimeout(() => {
         const userId = useAuthStore.getState().user?.id;
-        if (userId) {
-          router.push(`/api/${userId}/chats`);
-        }
-      }, 1500);
-      
+        if (userId) router.push(`/api/${userId}/chats`);
+      }, 250);
+
+      // showSuccess оставляем, чтобы UI успел отрисовать анимацию
+      setShowSuccess(true);
     } catch (err: unknown) {
       const error = err as Error;
       setError(error.message || "Ошибка авторизации");
+      console.log("Authorization error:", error);
     } finally {
       setLoading(false);
     }
@@ -62,6 +72,7 @@ export const useAuthHook = () => {
     loading,
     showSuccess,
     setShowSuccess,
+    user,
   };
 };
 
