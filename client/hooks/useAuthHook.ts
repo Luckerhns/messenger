@@ -4,10 +4,13 @@ import { useState } from "react";
 import { phoneMask } from "@/utils/auth";
 import { authLogin, authRegister } from "@/http/userHttp";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/authStore";
 import { privateRoutesEnum } from "@/types/routes";
 
 export const useAuthHook = () => {
   const router = useRouter();
+  const { login } = useAuthStore();
+  
   const [formData, setFormData] = useState({
     phone: "",
     password: "",
@@ -26,21 +29,25 @@ export const useAuthHook = () => {
     }
   };
 
-  const submitAuth = async (event: React.FormEvent, isRegister: boolean) => {
+  const submitAuth = async (event: React.FormEvent, isRegister: boolean = false) => {
     event.preventDefault();
     setLoading(true);
     setError("");
+    
     try {
-      const data = await authLogin(formData);
+      await login(formData);
       setShowSuccess(true);
-      setLoading(true)
+      
       setTimeout(() => {
-        // or window.location.href = '/private/chats';
-        setLoading(false)
-        router.push(privateRoutesEnum.CHATS_ROUTE);
+        const userId = useAuthStore.getState().user?.id;
+        if (userId) {
+          router.push(`/api/${userId}/chats`);
+        }
       }, 1500);
-    } catch (err: any) {
-      setError(err.response?.data?.message || err.message || "Auth failed");
+      
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message || "Ошибка авторизации");
     } finally {
       setLoading(false);
     }
@@ -57,3 +64,4 @@ export const useAuthHook = () => {
     setShowSuccess,
   };
 };
+

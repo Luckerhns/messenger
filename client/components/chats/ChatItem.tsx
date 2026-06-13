@@ -1,32 +1,44 @@
-import React from 'react';
-import { ChevronRight, Phone, Video } from 'lucide-react';
-import { IChat } from '@/types/chat';
-import { cn } from '@/utils/cn';
-import Image from 'next/image';
+import React from "react";
+import { ChevronRight, Phone, Video } from "lucide-react";
+import { IChat } from "@/types/chat";
+import { cn } from "@/utils/cn";
+import Image from "next/image";
 
 interface ChatItemProps {
   chat: IChat;
   onClick: () => void;
   selected?: boolean;
+  chatLink: string;
 }
 
-const ChatItem: React.FC<ChatItemProps> = ({ chat, onClick, selected = false }) => {
-  const avatarInitials = chat.name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+const ChatItem: React.FC<ChatItemProps> = ({
+  chat,
+  onClick,
+  selected = false,
+  chatLink
+}) => {
+  const avatarInitials = chat.name
+    .split(" ")
+    .slice(0, 2)
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
   const hasUnread = chat.unreadCount > 0;
 
   return (
     <div
+      data-link={chatLink}
       className={cn(
-        'flex items-center p-4 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors border-b border-gray-100 dark:border-gray-800',
-        selected && 'bg-blue-50 dark:bg-blue-900/20'
+        "flex items-center p-4 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors border-b border-gray-100 dark:border-gray-800",
+        selected && "bg-blue-50 dark:bg-blue-900/20",
       )}
       onClick={onClick}
     >
       <div className="relative mr-4">
         {chat.avatar ? (
-          <Image 
-            src={chat.avatar} 
-            alt={chat.name} 
+          <Image
+            src={chat.avatar}
+            alt={chat.name}
             width={48}
             height={48}
             className="w-12 h-12 rounded-full"
@@ -45,7 +57,9 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, onClick, selected = false }) 
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-sm truncate">{chat.name}</h3>
-          <span className="text-xs text-gray-500 ml-2 flex-shrink-0">{chat.lastTime}</span>
+          <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
+            {chat.lastTime}
+          </span>
         </div>
         <p className="text-xs text-gray-500 truncate">{chat.lastMessage}</p>
         {chat.unreadCount > 0 && (
@@ -64,4 +78,3 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, onClick, selected = false }) 
 };
 
 export default ChatItem;
-

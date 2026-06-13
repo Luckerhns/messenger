@@ -5,28 +5,35 @@ import { AppError } from "../types/error";
 import { v4 as uuidv4 } from "uuid";
 import database from "../config/database";
 import { Op } from "sequelize";
+import SnowflakeGenerator from "../utils/snowflake";
+
+// User open and td with chat
 
 export default class ChatSystemService {
-  public static async createChat(
-    jwt: any,
-    type: string,
-    name: string,
-    participants: [],
-    uniqueLink: string,
-  ) {
-    const user = decode(jwt) as JWTUserPayload;
-    console.log(user, jwt, "token");
-
-    if (!user) {
+  public static async createChat(chatData: any, userId: number) {
+    if (!userId) {
       throw new AppError("User was undefined while creating chat", 404);
     }
 
+    const { type, name, uniqueLink } = chatData;
+    const snowflake = new SnowflakeGenerator(1);
+
+    // Проверка на чат по активной ссылке
+
+    if (uniqueLink.length > 0) {
+      const isExistChat = await ChatModel.findOne({
+        where: { uniqueLink: uniqueLink },
+      });
+      if (isExistChat) {
+        throw new AppError("That link is alredy exists", 409);
+      }
+    }
     const newChat = await ChatModel.create({
-      creatorId: user.id,
+      id: snowflake.generate(),
+      creatorId: userId,
       type: type,
       name: name,
-      participants: participants,
-      uniqueLink: uniqueLink ? uniqueLink : uuidv4(),
+      uniqueLink: uniqueLink && uniqueLink.length > 0 ? uniqueLink : uuidv4(),
     });
 
     if (!newChat) {
@@ -36,21 +43,16 @@ export default class ChatSystemService {
     return newChat;
   }
 
-  public static async openChatsByUserId(userId: number) {
+  // User chat by id
+
+  public static async openChatsByUserId(userId: any) {
     if (!userId) {
       throw new AppError("UserId parameter missing", 500);
     }
 
     const userChats = await ChatModel.findAll({
       where: {
-        [Op.or]: [
-          { creatorId: userId },
-          database.where(
-            database.cast(database.col("participants"), "JSONB"),
-            "@>",
-            `[${userId}]`,
-          ),
-        ],
+        creatorId: userId,
       },
     });
     if (!userChats) throw new AppError("Chats was undefined", 404);
@@ -73,10 +75,10 @@ export default class ChatSystemService {
     return chat;
   }
 
-  public static async deleteChat(link: any, userId: number) {
-    console.log("Deleting chat:", link, "user:", userId);
+  public static async deleteChat(chatLink: any, userId: number) {
+    console.log("Deleting chat:", chatLink, "user:", userId);
 
-    const chat = await ChatModel.findOne({ where: { uniqueLink: link } });
+    const chat = await ChatModel.findOne({ where: { uniqueLink: chatLink } });
     if (!chat) throw new AppError("Chat not found", 404);
     if (chat.dataValues.creatorId !== userId)
       throw new AppError("Not chat creator", 403);

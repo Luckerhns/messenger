@@ -6,10 +6,10 @@ const authLogin = async (data) => {
     phone,
     password,
   });
+
   const { user, token, chats } = response.data;
-  localStorage.setItem("user", JSON.stringify(user));
-  localStorage.setItem("token", JSON.stringify(token));
-  localStorage.setItem("chats", JSON.stringify(chats));
+
+  return {user, token, chats}
 };
 
 const authRegister = async (data) => {
@@ -18,10 +18,10 @@ const authRegister = async (data) => {
     phone,
     password,
   });
-  const { user, token, chats } = JSON.parse(response.data);
-  localStorage.setItem("user", JSON.stringify(user));
-  localStorage.setItem("token", JSON.stringify(token));
-  localStorage.setItem("chats", JSON.stringify(chats));
+  const { user, token, chats } = response.data;
+  
+  return {user, token, chats}
 };
 
 export { authLogin, authRegister };
+

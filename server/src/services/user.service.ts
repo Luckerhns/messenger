@@ -64,7 +64,7 @@ export default class UserService {
     // Update Status
     const updatedStatus = UserService.setUserStatus(user.dataValues.id, "online");
 
-    const userChats = await ChatSystemService.openChatsByUserId(userId)
+    // const userChats = await ChatSystemService.openChatsByUserId(userId)
     
     const hashPassword = user.getDataValue("passwordHash") as string;
     
@@ -81,7 +81,7 @@ export default class UserService {
     return {
       user: user.dataValues,
       token,
-      chats: userChats
+      // chats: userChats
     };
   }
 

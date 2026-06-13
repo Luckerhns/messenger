@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import ChatSystemService from "../services/chatSystem.service";
+import { AppError } from "../types/error";
 
 export default class ChatSystemController {
   public static async createChat(
@@ -8,16 +9,29 @@ export default class ChatSystemController {
     next: NextFunction,
   ) {
     try {
-      const { token, type, name, participants, link } = req.body;
-      const newChat = ChatSystemService.createChat(
-        token,
-        type,
-        name,
-        participants,
-        link,
-      );
+      const { chatData, userId } = req.body;
+      const currentUser = userId;
+      const newChat = await ChatSystemService.createChat(chatData, userId);
 
-      return res.json(newChat);
+      return res.status(201).json(newChat);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async openChatsByUserId(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      console.log(req.query)
+      const userId = req.query.userId;
+      if (!userId) throw new AppError("UserId parameter missing", 400);
+
+      const userChats = await ChatSystemService.openChatsByUserId(userId);
+      console.log(userChats);
+      return res.status(200).json(userChats);
     } catch (error) {
       next(error);
     }

@@ -1,16 +1,17 @@
 import axios from 'axios';
+import { useAuthStore } from '@/store/authStore';
 
 export const $user = axios.create({
-  baseURL: '/api',
+  baseURL: 'http://localhost:5001/api',
 });
 
 export const $admin = axios.create({
-  baseURL: '/api',
+  baseURL: 'http://localhost:5001/api',
 });
 
 // User interceptor - add token
 $user.interceptors.request.use((config) => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  const token = typeof window !== 'undefined' ? useAuthStore.getState().token : null;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -20,7 +21,7 @@ $user.interceptors.request.use((config) => {
 
 // Admin interceptor - admin token
 $admin.interceptors.request.use((config) => {
-  const adminToken = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  const adminToken = typeof window !== 'undefined' ? useAuthStore.getState().token : null;
   if (adminToken) {
     config.headers.Authorization = `Bearer ${adminToken}`;
   }
@@ -35,10 +36,10 @@ responseInterceptors.forEach(instance => {
     response => response,
     (error) => {
       if (error.response?.status === 401) {
-        localStorage.removeItem('token');
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login';
-        }
+        useAuthStore.getState().logout();
+        // if (typeof window !== 'undefined') {
+        //   window.location.href = '/login';
+        // }
       }
       return Promise.reject(error);
     }

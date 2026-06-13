@@ -12,6 +12,7 @@ import mainRouter from "./src/routes";
 import cors from "cors";
 
 import { setupSockets } from "./src/sockets";
+import ChatParticipants from "./src/models/ChatParticipants";
 
 const app = express();
 const server = http.createServer(app);
@@ -19,7 +20,7 @@ const wss = new WebSocketServer({ server });
 
 app.use(express.static("public"));
 
-app.use(cors())
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api", mainRouter);
@@ -44,13 +45,13 @@ process.on("uncaughtException", (error) => {
   process.exit(1);
 });
 
-// Setup sockets
 const PORT = process.env.PORT || 5001;
 
 const start = async () => {
   try {
-    await database.sync();
     await database.authenticate();
+    await database.sync({ alter: true});
+    await ChatParticipants.sync({ alter: true });
     server.listen(PORT, () => {
       console.log(`Messenger server running on port ${PORT}`);
     });
@@ -59,5 +60,6 @@ const start = async () => {
   }
 };
 
-start();
+
 setupSockets(wss);
+start();

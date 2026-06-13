@@ -1,13 +1,9 @@
 export interface IChat {
-  id: number;
+  id?: number;
+  type: "private" | "group" | "channel";
   name: string;
-  type: 'private' | 'group' | 'channel';
-  avatar?: string;
-  lastMessage: string;
-  lastTime: string;
-  unreadCount: number;
-  uniqueLink: string;
-  participants: number[];
+  creatorId: number;
+  uniqueLink?: string | null;
 }
 
 export type ChatList = IChat[];
@@ -25,4 +21,3 @@ export interface IMessage {
 }
 
 export type MessageList = IMessage[];
-

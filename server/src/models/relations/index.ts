@@ -1,20 +1,27 @@
 import ChatModel from "../Chat";
+import ChatParticipants from "../ChatParticipants";
 import MessageModel from "../Message";
 import UserModel from "../User";
 
+// Связи сообщений
 MessageModel.belongsTo(UserModel, { foreignKey: "senderId", as: "sender" });
 MessageModel.belongsTo(ChatModel, { foreignKey: "chatId", as: "chat" });
 MessageModel.belongsTo(MessageModel, { foreignKey: "replyTo", as: "reply" });
+MessageModel.hasMany(MessageModel, { foreignKey: "replyTo", as: "replies" });
 
+// Связи чатов
 ChatModel.belongsTo(UserModel, { foreignKey: "creatorId", as: "creator" });
-ChatModel.belongsToMany(UserModel, { through: "ChatParticipants" });
-
-
-UserModel.belongsToMany(ChatModel, {
-  through: "ChatParticipants",
-  as: "chats",
-});
-UserModel.hasMany(MessageModel, { foreignKey: "senderId", as: "sentMessages" });
 ChatModel.hasMany(MessageModel, { foreignKey: "chatId", as: "messages" });
+ChatModel.belongsToMany(UserModel, {
+  through: ChatParticipants,
+  foreignKey: "chatId",
+  as: "participants"
+});
 
-export { ChatModel, MessageModel, UserModel };
+// Связи пользователей
+UserModel.hasMany(MessageModel, { foreignKey: "senderId", as: "sentMessages" });
+UserModel.belongsToMany(ChatModel, {
+  through: ChatParticipants,
+  foreignKey: "userId",
+  as: "chats"
+});

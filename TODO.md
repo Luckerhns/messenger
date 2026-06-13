@@ -1,9 +1,11 @@
-# Not-Found Page Task
+# TODO
 
-## Steps:
-- [x] 1. Create TODO.md with task steps.
-- [x] 2. Edit client/app/not-found.tsx with beautiful 404 page.
-- [x] 3. Verify changes.
-- [x] 4. Complete task.
+## Task: ограничить авто-рост textarea до maxHeight и вести себя предсказуемо
 
+- [ ] Собрать понимание текущей реализации: useAutoResizeTextarea / AutoResizeTextarea / использование в ChatWindow.
+- [ ] Сформировать план правок по файлам.
+- [ ] После подтверждения: обновить useAutoResizeTextarea (правильное управление overflow, отсутствие лишнего padding-слома, поддержка 500px как верхнего порога по умолчанию).
+- [ ] Обновить AutoResizeTextarea (пропы maxHeight по умолчанию и прокидывание; убрать/исправить конфликт rows/maxHeight).
+- [ ] Проверить сборку/линт.
+- [ ] Запустить/проверить вручную: textarea растёт пока не достигнет 500px, дальше не растёт и появляется scroll при необходимости.
 

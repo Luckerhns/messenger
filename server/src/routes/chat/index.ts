@@ -11,7 +11,7 @@ const router = express.Router();
 router.use("/chats", listChatsRouter);
 router.use("/create-chat", createRouter);
 router.get('/:link', ChatSystemController.openChat);
-router.post('/:link/members', authMiddleware, ChatManagerController.addUser);
+router.post('/:link', ChatManagerController.addUser);
 router.use('/delete-chat', authMiddleware, deleteRouter);
 router.use('/:link', deleteRouter)
 // router.use('/delete-chat' deleteRouter)

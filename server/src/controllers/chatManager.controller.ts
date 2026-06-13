@@ -11,7 +11,7 @@ export default class ChatManagerController {
 
       const updatedChat = await ChatManagerService.addUserToChat(
         link,
-        Number(userId),
+        userId,
       );
       res.json(updatedChat);
     } catch (error) {
@@ -25,9 +25,4 @@ export default class ChatManagerController {
     next: NextFunction,
   ) {}
 
-  public static async getUserChats(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) {}
 }

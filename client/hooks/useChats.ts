@@ -1,35 +1,40 @@
 "use client";
-import { useState, useEffect } from "react";
-import { Chat } from "@/types/chat";
-import { privateRoutesEnum } from "@/types/routes";
-import { $user } from "@/http";
-import { getUserChats } from "@/http/chatsHttp";
-import { useRouter } from "next/navigation";
+
+import { useAuthStore } from "@/store/authStore";
+import { useChatsStore } from "@/store/chatsStore";
+import { useEffect, useCallback } from "react";
 
 export const useChats = () => {
-  const [chats, setChats] = useState<Chat[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const router = useRouter()
+  const chats = useChatsStore((state) => state.chats);
+  const loading = useChatsStore((state) => state.isLoading);
+  const setUserChatsAction = useChatsStore((state) => state.setUserChats);
+  const authUser = useAuthStore((state) => state.user);
+  const userId = authUser?.id;
 
-  const fetchChats = async () => {
-    try {
-      setLoading(true);
-      setError("");
-      const chatsArray = await getUserChats()
-      setChats(chatsArray || []);
-      router.push(privateRoutesEnum.CHATS_ROUTE)
-    } catch (err: any) {
-      console.error("Fetch chats error:", err);
-      setError(err.response?.data?.message || "Failed to load chats. Retry");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Initial load: fetch chats once when userId becomes available
   useEffect(() => {
-    fetchChats();
-  }, []);
+    if (!userId) return;
+    if (chats.length === 0) {
+      setUserChatsAction(userId);
+    }
+  }, [userId]);
 
-  return { chats, loading, error, refetch: fetchChats };
+  const refetch = useCallback(
+    async (refetchUserId?: number) => {
+      const targetUserId = refetchUserId ?? userId;
+      if (!targetUserId) {
+        console.warn("refetch called without userId");
+        return;
+      }
+      await setUserChatsAction(targetUserId);
+    },
+    [userId, setUserChatsAction]
+  );
+
+  return {
+    chats,
+    loading,
+    refetch,
+  };
 };
+
