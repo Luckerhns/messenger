@@ -7,13 +7,11 @@ import checkParticipants from "../utils/checkParticipants";
 // User crud Chat
 
 export default class ChatManagerService {
-  public static async addUserToChat(chatLink: any, userId: number) {
-    console.log("addUser service:", chatLink, userId);
+  public static async addUserToChat(chatId: any, userId: number) {
+    console.log("addUser service:", chatId, userId);
 
-    const chat = await ChatModel.findOne({ where: { uniqueLink: chatLink } });
+    const chat = await ChatModel.findOne({ where: { id: chatId } });
     if (!chat) throw new AppError("Chat not found", 404);
-
-    const chatId = chat.dataValues.id;
 
     const user = await UserModel.findByPk(userId);
     if (!user) throw new AppError("User not found", 404);

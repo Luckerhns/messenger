@@ -5,12 +5,12 @@ import { AppError } from "../types/error";
 export default class ChatManagerController {
   public static async addUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const { link } = req.params;
+      const { chatId } = req.body;
       const { userId } = req.body;
-      console.log("Controller addUser:", link, userId);
+      console.log("Controller addUser:", chatId, userId);
 
       const updatedChat = await ChatManagerService.addUserToChat(
-        link,
+        chatId,
         userId,
       );
       res.json(updatedChat);

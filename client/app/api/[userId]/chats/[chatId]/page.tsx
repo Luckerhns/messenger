@@ -10,7 +10,7 @@ import { useChats } from "@/hooks/useChats";
 import { useChatsStore } from "@/store/chatsStore";
 import { useSelectChat } from "@/hooks/useSelectChat";
 import { useParams, useSearchParams } from "next/navigation";
-import useSocketHook from "@/hooks/useSocketHook";
+import useSocketHook from "@/hooks/useWebSocket";
 import { initSocket } from "@/lib/socket";
 
 const ChatsPage = () => {
@@ -19,9 +19,8 @@ const ChatsPage = () => {
   const { chats } = useChats();
   const searchParams = useParams();
 
-  useEffect(() => {
-    initSocket(); // to be implemented
-  }, []);
+  
+  (selectedChat, chats, "CHHHHAAAATSSS")
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -29,10 +28,10 @@ const ChatsPage = () => {
 
   const { userId, chatId } = searchParams;
 
-  console.log(searchParams);
+  (searchParams);
 
   const handleNewChat = () => {
-    // console.log("New chat");
+    // ("New chat");
   };
 
   const { setUserChats } = useChatsStore();
@@ -43,7 +42,7 @@ const ChatsPage = () => {
   const handleChatSelect = (chatId: string) => {
     selectChat(chatId);
   };
-  // console.log("selected Chat", selectedChat);
+  ("selected Chat", selectedChat);
   return (
     <Suspense>
       <div className="h-screen flex bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -55,7 +54,7 @@ const ChatsPage = () => {
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col">
           <div className="flex-1 flex flex-col">
-            <ChatWindow chat={selectedChat || null} />
+            <ChatWindow chat={selectedChat?.Chat || null} />
             <CreateChatModal />
           </div>
         </div>

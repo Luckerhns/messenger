@@ -4,8 +4,10 @@ import ChatModel from "../models/Chat";
 import { AppError } from "../types/error";
 import { v4 as uuidv4 } from "uuid";
 import database from "../config/database";
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import SnowflakeGenerator from "../utils/snowflake";
+import ChatParticipants from "../models/ChatParticipants";
+import UserModel from "../models/User";
 
 // User open and td with chat
 
@@ -36,6 +38,12 @@ export default class ChatSystemService {
       uniqueLink: uniqueLink && uniqueLink.length > 0 ? uniqueLink : uuidv4(),
     });
 
+    await ChatParticipants.create({
+      chatId: newChat.dataValues.id,
+      userId: userId,
+      role: 'owner'
+    })
+
     if (!newChat) {
       throw new AppError("Chat was not created", 500);
     }
@@ -50,14 +58,16 @@ export default class ChatSystemService {
       throw new AppError("UserId parameter missing", 500);
     }
 
-    const userChats = await ChatModel.findAll({
-      where: {
-        creatorId: userId,
-      },
+    const chats = ChatParticipants.findAll({
+      where: { userId: userId },
+      include: [{
+        model: ChatModel
+      }]
     });
-    if (!userChats) throw new AppError("Chats was undefined", 404);
 
-    return userChats;
+    if (!chats) throw new AppError("Chats was undefined", 404);
+
+    return chats;
   }
 
   public static async openChatByLink(link: string) {

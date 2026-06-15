@@ -21,12 +21,12 @@ const ChatList: React.FC<ChatListProps> = ({ onChatSelect }) => {
   const router = useRouter();
   const userId = useAuthStore((state) => state.user?.id);
 
+  (chats);
+
   const handleChatClick = (chatLink: string, chatId?: string) => {
     selectChat(chatLink);
     if (onChatSelect) {
-      router.push(`/api/${userId}/chats/${chatId || chatLink}`);
-    } else {
-      router.push(`/api/${userId}/chats/${chatId || chatLink}`);
+      router.push(`/api/${userId}/chats/${chatId ? chatId : chatLink}`);
     }
   };
 
@@ -39,8 +39,10 @@ const ChatList: React.FC<ChatListProps> = ({ onChatSelect }) => {
   }
 
   return (
-    <div className="chats-list-container relative flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 hover:scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:hover:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800
-     scrollbar-thumb-rounded scrollbar-w-2">
+    <div
+      className="chats-list-container relative flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 hover:scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:hover:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800
+     scrollbar-thumb-rounded scrollbar-w-2"
+    >
       {chats.length === 0 ? (
         <div className="text-center p-12 text-gray-500">
           <MessageCircle className="w-16 h-16 mx-auto mb-4 opacity-50" />
@@ -49,13 +51,13 @@ const ChatList: React.FC<ChatListProps> = ({ onChatSelect }) => {
       ) : (
         chats.map((chat, index) => (
           <ChatItem
-            chatLink={chat.uniqueLink}
-            key={chat.id ?? index}
-            chat={chat}
+            chatLink={chat.Chat.uniqueLink}
+            key={index}
+            chat={chat.Chat}
             onClick={() =>
               handleChatClick(
-                chat.uniqueLink || chat.id?.toString() || "",
-                chat.id?.toString(),
+                chat.Chat.uniqueLink?.toString() || "",
+                chat.chatId?.toString(),
               )
             }
           />

@@ -15,7 +15,7 @@ ChatModel.hasMany(MessageModel, { foreignKey: "chatId", as: "messages" });
 ChatModel.belongsToMany(UserModel, {
   through: ChatParticipants,
   foreignKey: "chatId",
-  as: "participants"
+  as: "participants",
 });
 
 // Связи пользователей
@@ -23,5 +23,20 @@ UserModel.hasMany(MessageModel, { foreignKey: "senderId", as: "sentMessages" });
 UserModel.belongsToMany(ChatModel, {
   through: ChatParticipants,
   foreignKey: "userId",
-  as: "chats"
+  as: "chats",
+});
+
+ChatModel.hasMany(ChatParticipants, {
+  foreignKey: "chatId",
+  as: "participantsDirect", // уникальный алиас
+});
+
+ChatParticipants.belongsTo(ChatModel, {
+  foreignKey: "chatId",
+  as: "chat",
+});
+
+ChatParticipants.belongsTo(UserModel, {
+  foreignKey: "userId",
+  as: "user",
 });

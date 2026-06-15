@@ -51,15 +51,27 @@ const start = async () => {
   try {
     await database.authenticate();
     await database.sync({ alter: true});
-    await ChatParticipants.sync({ alter: true });
+    await ChatParticipants.sync({ alter: true});
+    ChatModel.hasMany(ChatParticipants, {
+      foreignKey: "chatId",
+      as: "participantsDirect",
+    });
+
+    ChatParticipants.belongsTo(ChatModel, {
+      foreignKey: "chatId",
+    });
     server.listen(PORT, () => {
       console.log(`Messenger server running on port ${PORT}`);
     });
+    console.log("ChatModel associations:", Object.keys(ChatModel.associations));
+    console.log(
+      "ChatParticipants associations:",
+      Object.keys(ChatParticipants.associations),
+    );
   } catch (error) {
     console.log(error, "Error in starting server!");
   }
 };
-
 
 setupSockets(wss);
 start();

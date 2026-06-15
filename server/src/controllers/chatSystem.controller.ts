@@ -25,11 +25,17 @@ export default class ChatSystemController {
     next: NextFunction,
   ) {
     try {
-      const userId = req.query.userId;
-      if (!userId) throw new AppError("UserId parameter missing", 400);
+      const { userId } = req.body ?? {};
+      // GET /user-chats should receive userId via query or body; body may be undefined for GET.
+      const userIdFromQuery = (req.query as any)?.userId;
+      const resolvedUserId = userId ?? userIdFromQuery;
 
-      const userChats = await ChatSystemService.openChatsByUserId(userId);
+      if (!resolvedUserId) throw new AppError("UserId parameter missing", 400);
+
+      // keep behavior consistent for the service layer
+      const userChats = await ChatSystemService.openChatsByUserId(resolvedUserId as string);
       return res.status(200).json(userChats);
+
     } catch (error) {
       next(error);
     }

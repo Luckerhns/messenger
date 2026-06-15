@@ -25,7 +25,7 @@ const ChatsPage = ({ params }) => {
     router.push(`/api/${params.userId}/chats/${chatId}`);
     selectChat(chatId);
   };
-  console.log("selected Chat", selectedChat);
+  ("selected Chat", selectedChat);
   return (
     <div className="h-screen flex bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="w-[420px] max-w-[420px] flex flex-col border-r border-gray-200 dark:border-gray-800 shrink-0 md:w-[380px] relative">

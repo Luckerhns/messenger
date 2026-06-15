@@ -31,6 +31,12 @@ const ChatModel = database.define(
       unique: true,
       allowNull: true,
     },
+
+    avatarUrl: {
+      type: DataTypes.STRING,
+      unique: false,
+      allowNull: true
+    }
   },
   {
     tableName: "chats",

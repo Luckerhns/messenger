@@ -59,12 +59,13 @@ export default class UserService {
     if (!user) {
       throw new AppError("Invalid credentials", 401);
     }
-    // console.log('gg')
+    console.log(user, "USER")
     const userId = user.dataValues.id
+    console.log(userId, "USER ID")
     // Update Status
     const updatedStatus = UserService.setUserStatus(user.dataValues.id, "online");
 
-    // const userChats = await ChatSystemService.openChatsByUserId(userId)
+    const userChats = await ChatSystemService.openChatsByUserId(userId)
     
     const hashPassword = user.getDataValue("passwordHash") as string;
     
@@ -81,7 +82,7 @@ export default class UserService {
     return {
       user: user.dataValues,
       token,
-      // chats: userChats
+      chats: userChats
     };
   }
 

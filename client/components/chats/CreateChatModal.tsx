@@ -43,8 +43,8 @@ const CreateChatModal: React.FC = () => {
 
     setLoading(true);
     try {
-      console.log('Refetch with user', userId)
-      console.log(formData)
+      ('Refetch with user', userId)
+      (formData)
       await addNewChat(formData);
       closeModal();
       refetch(userId);

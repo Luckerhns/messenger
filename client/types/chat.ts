@@ -10,11 +10,11 @@ export type ChatList = IChat[];
 
 export interface IMessage {
   id: number;
-  chatId: string;
-  senderId: number;
-  senderName: string;
-  content: string;
-  timestamp: string;
+  chatId?: string;
+  senderId?: number;
+  senderName?: string;
+  content?: string;
+  timestamp?: string;
   isOwn: boolean;
   isFile?: boolean;
   fileUrl?: string;

@@ -7,13 +7,13 @@ import { cn } from "@/utils/cn";
 import { useMessagesStore } from "@/store/messagesStore";
 import type { IChat, IMessage } from "@/types/chat";
 import { openSocketConnection, socketClient } from "@/app/sockets";
-import useSocketHook from "@/hooks/useSocketHook";
 import { useAuthStore } from "@/store/authStore";
 import { useChatsStore } from "@/store/chatsStore";
 import { useSelectChat } from "@/hooks/useSelectChat";
 import AutoResizeTextarea from "../UI/AutoResizeTextarea";
 import { useInputStore } from "@/store/inputStore";
-import { sendSocketMessage } from "@/lib/socket";
+import { initSocket, sendSocketMessage } from "@/lib/socket";
+import { useWebSocket } from "@/hooks/useWebSocket";
 
 interface ChatWindowProps {
   chat: IChat | null;
@@ -22,7 +22,7 @@ interface ChatWindowProps {
 const ChatWindow: React.FC<ChatWindowProps> = ({ chat }) => {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, isSending, addMessage, setSending } = useMessagesStore();
+  const { messages, isSending, addMessage } = useMessagesStore();
   // const {isConnected} = useSocketHook()
   const chatMessages = chat ? messages[chat.uniqueLink] || [] : [];
   const sending = chat ? isSending[chat.uniqueLink] || false : false;
@@ -30,17 +30,26 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ chat }) => {
   const { selectedChat } = useSelectChat();
   const { inputValue, setInputValue } = useInputStore();
 
-  // Send message to websocket server
+  const { lastMessage, error, isConnected } = useWebSocket();
+  initSocket()
   const sendMessage = async () => {
     try {
-      const newMessage = await sendSocketMessage(inputValue, chat.id, user.id);
-      console.log(newMessage)
+      await sendSocketMessage(inputValue, chat.id, user.id);
+      const newMessage = {
+        type: "sendMessage",
+        message: inputValue,
+        chatId: chat?.id,
+        userId: user.id,
+      };
+      console.log(chatMessages)
+      addMessage(chat.uniqueLink, newMessage);
+      setInputValue("");
     } catch (error) {
       console.log("Error sending message:", error);
     }
   };
 
-  if (!chat) {
+  if (!chat || chat === null) {
     return (
       <div className="flex-1 flex items-center justify-center p-12 text-center">
         <div>
@@ -58,13 +67,15 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ chat }) => {
     );
   }
 
+  // Full chat page (right panel)
+
   return (
     <div className="chat-window-container flex flex-col h-full ">
       {/* Header */}
       <div className="h-16 bg-white/80 dark:bg-gray-800/80 backdrop-blur border-b border-gray-200 dark:border-gray-700 p-4 flex items-center space-x-3 shrink-0">
         <div className="flex items-center space-x-3 flex-1 min-w-0">
           <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
-            {chat.avatar ? (
+            {/* {chat.avatar ? (
               <Image
                 src={chat.avatar}
                 alt={chat.name}
@@ -74,7 +85,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ chat }) => {
               />
             ) : (
               chat.name.slice(0, 2).toUpperCase()
-            )}
+            )} */}
           </div>
           <div className="min-w-0 flex-1">
             <h2 className="font-semibold text-gray-900 dark:text-white truncate">
@@ -96,13 +107,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ chat }) => {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50 dark:bg-gray-900/50">
-        {chatMessages.map((message) => (
+
+      <div className="chat-messages-container max-h-[calc(100vh-15vh)] flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50 dark:bg-gray-900/50">
+        {chatMessages.map((message, key) => (
           <div
-            key={message.id}
+            key={key}
             className={cn(
               "flex",
-              message.isOwn ? "justify-end" : "justify-start",
+              message.userId === user.id ? "justify-end" : "justify-start",
             )}
           >
             <div
@@ -113,7 +125,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ chat }) => {
                   : "bg-white dark:bg-gray-800 rounded-bl-none border",
               )}
             >
-              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+              <p className="text-sm whitespace-pre-wrap">{message.message}</p>
               <p className="text-xs opacity-75 mt-1 text-right">
                 {message.timestamp}
               </p>

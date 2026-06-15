@@ -9,7 +9,8 @@ export const useSelectChat = () => {
   const selectChatInStore = useChatsStore(state => state.selectChat);
 
   const selectChat = (chatLink: string) => {
-    const chat = chats.find(c => c.uniqueLink === chatLink) || null;
+    (chats.Chat, "CHATS")
+    const chat = chats.find(c => c.Chat.uniqueLink === chatLink) || null;
     selectChatInStore(chat);
     console.log("Selected chat:", chat);
   };

@@ -9,16 +9,15 @@ const ChatParticipants = database.define(
   {
     chatId: {
       type: DataTypes.BIGINT,
-      defaultValue: DataTypes.BIGINT,
-
       allowNull: false,
-      primaryKey: true,
+      primaryKey: true, // Часть составного ключа
       references: { model: ChatModel, key: "id" },
       onDelete: "CASCADE",
     },
     userId: {
       type: DataTypes.UUID,
       allowNull: false,
+      primaryKey: true, // Часть составного ключа
       references: { model: UserModel, key: "id" },
       onDelete: "CASCADE",
     },
@@ -27,7 +26,7 @@ const ChatParticipants = database.define(
       defaultValue: DataTypes.NOW,
     },
     role: {
-      type: DataTypes.ENUM("admin", "moderator", "member"),
+      type: DataTypes.ENUM("owner", "admin", "moderator", "member"),
       defaultValue: "member",
     },
     lastReadMessageId: {
@@ -39,6 +38,7 @@ const ChatParticipants = database.define(
   {
     tableName: "chat_participants",
     timestamps: false,
+    // primaryKey: ["chatId", "userId"],
   },
 );
 

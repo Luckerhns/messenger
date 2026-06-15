@@ -1,6 +1,5 @@
 "use client";
 
-import useSocketHook from "@/hooks/useSocketHook";
 import React from "react";
 
 const SocketMount = () => {

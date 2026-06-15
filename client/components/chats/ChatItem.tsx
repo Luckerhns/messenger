@@ -35,9 +35,9 @@ const ChatItem: React.FC<ChatItemProps> = ({
       onClick={onClick}
     >
       <div className="relative mr-4">
-        {chat.avatar ? (
+        {chat.avatarUrl ? (
           <Image
-            src={chat.avatar}
+            src={chat.avatarUrl}
             alt={chat.name}
             width={48}
             height={48}
